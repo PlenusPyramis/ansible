@@ -1,0 +1,33 @@
+---
+
+- name: Install Rook CRDs - rook-common.yaml
+  get_url:
+    url: https://raw.githubusercontent.com/rook/rook/release-1.0/cluster/examples/kubernetes/ceph/common.yaml
+    dest: /var/lib/rancher/k3s/server/manifests/rook-common.yaml
+
+- name: Install Rook Operator - rook-operator.yaml
+  get_url:
+    url: https://raw.githubusercontent.com/rook/rook/release-1.0/cluster/examples/kubernetes/ceph/operator.yaml
+    dest: /var/lib/rancher/k3s/server/manifests/rook-operator.yaml
+
+- name: Create Rook Cluster - rook-cluster.yaml
+  template:
+    src: "rook-cluster.yaml.j2"
+    dest: "/var/lib/rancher/k3s/server/manifests/rook-cluster.yaml"
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Create Rook StorageClass - rook-storageclass.yaml
+  template:
+    src: "rook-storageclass.yaml.j2"
+    dest: "/var/lib/rancher/k3s/server/manifests/rook-storageclass.yaml"
+    owner: root
+    group: root
+    mode: 0600
+    
+- name: Create example wordpress-mysql container
+  get_url:
+    url: https://raw.githubusercontent.com/rook/rook/release-1.0/cluster/examples/kubernetes/mysql.yaml
+    dest: "/var/lib/rancher/k3s/server/manifests/rook-example-wordpress-mysql.yaml"
+  

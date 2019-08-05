@@ -84,3 +84,28 @@
     src: /usr/local/bin/k3s
     dest: /usr/local/bin/crictl
     state: link
+
+- name: Create kubeconfig with remote hostname
+  shell: "sed 's/localhost/{{ master }}/' /etc/rancher/k3s/k3s.yaml > /etc/rancher/k3s/k3s-remote.yaml"
+  args:
+    warn: false
+  changed_when: false
+
+- name: Copy kubectl config to ansible host
+  fetch:
+    src: /etc/rancher/k3s/k3s-remote.yaml
+    flat: yes
+    dest: "{{ lookup('env', 'HOME') }}/.kube/{{ cluster_name }}.yaml"
+
+- name: Install extra packages on kube master
+  apt:
+    state: present
+    name:
+      - linux-modules-extra-{{ ansible_kernel }}
+      - python3-pip
+      - python3-virtualenv
+    force_apt_get: "yes"
+
+- name: Install openshift client on kube master
+  pip:
+    name: openshift

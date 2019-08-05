@@ -10,3 +10,6 @@ dns: "1.0.0.1 1.1.1.1"
 
 kata_version: 1.8.0
 
+cluster_name: nuc
+master: nuc1
+ceph_osd_device: sda
