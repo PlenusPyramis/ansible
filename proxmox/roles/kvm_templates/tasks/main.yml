@@ -1,0 +1,26 @@
+- name: Check for ubuntu_bionic template type
+  command: "qm config {{ proxmox_template_ids['ubuntu_bionic'][inventory_hostname] }}"
+  register: ubuntu_bionic_template_status
+  ignore_errors: true
+  changed_when: false
+
+- name: Create ubuntu_bionic template (1 core 512MB RAM)
+  when: ubuntu_bionic_template_status.rc > 0
+  command: "qm create {{ proxmox_template_ids['ubuntu_bionic'][inventory_hostname] }} -name ubuntu-bionic -memory 512 -net0 virtio,bridge=vmbr0 -serial0 socket -vga serial0"
+
+- name: Import ubuntu_bionic disk image
+  when: ubuntu_bionic_template_status.rc > 0
+  command: "qm importdisk {{ proxmox_template_ids['ubuntu_bionic'][inventory_hostname] }} {{ ubuntu_bionic_cloud_image }} ceph-vm"
+
+- name: Attach ubuntu_bionic disk
+  when: ubuntu_bionic_template_status.rc > 0
+  command: "qm set {{ proxmox_template_ids['ubuntu_bionic'][inventory_hostname] }} -scsihw virtio-scsi-pci -scsi0 ceph-vm:vm-{{ proxmox_template_ids['ubuntu_bionic'][inventory_hostname] }}-disk-0"
+
+- name: Create ubuntu_bionic boot settings
+  when: ubuntu_bionic_template_status.rc > 0
+  command: "qm set {{ proxmox_template_ids['ubuntu_bionic'][inventory_hostname] }} -ide2 ceph-vm:cloudinit -boot c -bootdisk scsi0"
+
+- name: Convert ubuntu_bionic to template
+  when: ubuntu_bionic_template_status.rc > 0
+  command: "qm template {{ proxmox_template_ids['ubuntu_bionic'][inventory_hostname] }}"
+

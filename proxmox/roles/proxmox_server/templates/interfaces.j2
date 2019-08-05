@@ -1,0 +1,45 @@
+## Ansible maintained /etc/network/interfaces file.
+## Don't edit /etc/network/interfaces yourself.
+## Edit the template: proxmox-ansible/roles/proxmox-server/tasks/interfaces.j2
+
+auto lo
+iface lo inet loopback
+
+iface {{ proxmox_public_interface }} inet manual
+
+auto {{ proxmox_trunk_interface }}
+iface {{ proxmox_trunk_interface }} inet static
+        address  {{ proxmox_public_ips[0] }}
+        netmask  {{ proxmox_public_netmask }}
+        gateway  {{ proxmox_public_gateway }}
+        bridge_ports eno1
+        bridge_stp off
+        bridge_fd 0
+        bridge_vlan_aware yes
+        {% for ip in proxmox_public_ips[1:] %} 
+        post-up ip addr add {{ ip }}/{{ proxmox_public_netmask }} brd + dev {{ proxmox_trunk_interface }}
+        {% endfor  %} 
+        # On startup run the external firewall script  
+        # to setup IP Masquerading and port forwards: 
+        post-up /etc/firewall.sh 
+
+{% if ceph_nic is defined %}
+## {{ ceph_nic }} is the ceph network interface
+auto {{ ceph_nic }}
+iface {{ ceph_nic }} inet static
+    address {{ ceph_ip }}
+    netmask 255.255.255.0
+{% endif %}
+
+{% for vlan, subnet in proxmox_vlans.items() %}
+{% set ip_address="{p}.{i}".format(p=".".join(subnet.network.split(".")[:3]), i=proxmox_nodes[inventory_hostname].id) %}
+## VM VLAN tag {{ vlan }}
+auto {{ proxmox_trunk_interface }}.{{ vlan }}
+iface  {{ proxmox_trunk_interface }}.{{ vlan }} inet static 
+    address {{ ip_address }}
+    netmask 255.255.255.0 
+    bridge_ports none 
+    bridge_stp off 
+    bridge_maxwait 0 
+    bridge_fd 0 
+{% endfor %} 

@@ -1,0 +1,10 @@
+---
+
+- hosts: ubuntu-host
+  gather_facts: yes
+  become: yes
+  roles:
+    - { role: network }
+    - { role: packages }
+    # - { role: kata-containers }
+

@@ -1,0 +1,12 @@
+---
+
+- name: Remove apt proxy
+  file:
+    path: /etc/apt/apt.conf.d/90cloud-init-aptproxy
+    state: absent
+
+- name: Install kernel modules
+  apt:
+    name: linux-modules-extra-{{ ansible_kernel }}
+    state: present
+    force_apt_get: yes

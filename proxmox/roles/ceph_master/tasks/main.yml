@@ -1,0 +1,17 @@
+- name: Check ceph status
+  uri:
+    url: "https://{{ inventory_hostname }}:8006/api2/json/nodes/{{ inventory_hostname }}/ceph/status"
+    method: GET
+    validate_certs: "{{ proxmox_verify_ssl }}"
+    headers:
+      Cookie: "PVEAuthCookie={{ proxmox_auth_token.json.data.ticket }}"
+      CSRFPreventionToken: "{{ proxmox_auth_token.json.data.CSRFPreventionToken }}"
+  register: pveceph_status
+  ignore_errors: true
+  changed_when: false
+
+- name: Create ceph network
+  command: pveceph init --network {{ ceph_network }}
+  when: "pveceph_status.status >= 500"
+
+

@@ -1,0 +1,14 @@
+---
+
+- name: Check for Kata containers installation
+  stat:
+    path: /opt/kata
+  register: kata_path
+
+- name: Install Kata Containers release
+  when: not kata_path.stat.exists
+  unarchive:
+    remote_src: true
+    src: https://github.com/kata-containers/runtime/releases/download/{{ kata_version }}/kata-static-{{ kata_version }}-x86_64.tar.xz
+    dest: /
+

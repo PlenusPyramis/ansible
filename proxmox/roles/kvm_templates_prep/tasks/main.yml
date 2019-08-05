@@ -1,0 +1,5 @@
+- name: Download Ubuntu 18.04 cloud image
+  get_url:
+    url: "{{ ubuntu_bionic_cloud_image_url }}"
+    dest: "{{ ubuntu_bionic_cloud_image }}"
+

@@ -1,0 +1,19 @@
+---
+
+- name: Update DNS
+  copy:
+    dest: "/etc/systemd/resolved.conf"
+    content: |
+      ## Ansible managed
+      [Resolve]
+      DNS={{ dns }}
+      Domains={{ domain }}
+  register: resolved_conf
+
+- name: Restart DNS
+  systemd:
+    name: systemd-resolved
+    daemon_reload: true
+    state: restarted
+  when: resolved_conf.changed
+

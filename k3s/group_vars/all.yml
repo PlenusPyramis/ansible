@@ -1,0 +1,12 @@
+k3s_version: v0.7.0
+## k3s 0.7.0 - update this sha256 whenever you bump k3s_version
+k3s_sha256: b838785f81f4a8c7e4564769c4deae391439d6782170f6a03bee742dd39c4d3c
+ansible_user: ubuntu
+systemd_dir: /etc/systemd/system
+master_ip: "{{ hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0]) }}"
+
+domain: app.lan.rymcg.tech
+dns: "1.0.0.1 1.1.1.1"
+
+kata_version: 1.8.0
+

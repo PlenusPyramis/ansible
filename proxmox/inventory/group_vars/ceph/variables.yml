@@ -1,0 +1,3 @@
+ceph_pool: "tank"
+ceph_nodes: "nuc1,nuc2,nuc3"
+ceph_network: 10.11.0.0/24
